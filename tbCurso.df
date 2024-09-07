@@ -1,0 +1,181 @@
+ADD TABLE "tbItemPedido"
+  AREA "Schema Area"
+  DUMP-NAME "tbitempedido"
+
+ADD FIELD "nrPedido" OF "tbItemPedido" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Nr Pedido"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Nr Pedido"
+  ORDER 10
+
+ADD FIELD "produto" OF "tbItemPedido" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Produto"
+  POSITION 3
+  MAX-WIDTH 32
+  COLUMN-LABEL "Produto"
+  ORDER 20
+
+ADD FIELD "quantidade" OF "tbItemPedido" AS decimal 
+  DESCRIPTION "Quantidade"
+  FORMAT "->>,>>>,>>9.9999"
+  INITIAL "0"
+  LABEL "Quantidade"
+  POSITION 4
+  MAX-WIDTH 19
+  COLUMN-LABEL "Quantidade"
+  DECIMALS 4
+  ORDER 30
+
+ADD FIELD "preco" OF "tbItemPedido" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  LABEL "Pre‡o"
+  POSITION 5
+  MAX-WIDTH 20
+  COLUMN-LABEL "Pre‡o"
+  DECIMALS 5
+  ORDER 40
+
+ADD FIELD "vlrTotal" OF "tbItemPedido" AS decimal 
+  FORMAT "->>,>>>,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Valor Total"
+  POSITION 6
+  MAX-WIDTH 17
+  COLUMN-LABEL "Valor Total"
+  DECIMALS 2
+  ORDER 50
+
+ADD INDEX "idxPk" ON "tbItemPedido" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "nrPedido" ASCENDING 
+  INDEX-FIELD "produto" ASCENDING 
+
+ADD TABLE "tbPedido"
+  AREA "Dados"
+  DUMP-NAME "tbpedido"
+
+ADD FIELD "nrPedido" OF "tbPedido" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Nr Pedido"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Nr Pedido"
+  ORDER 10
+
+ADD FIELD "codFornecedor" OF "tbPedido" AS integer 
+  DESCRIPTION "Fornecedor"
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Fornecedor"
+  POSITION 3
+  MAX-WIDTH 4
+  COLUMN-LABEL "Fornecedor"
+  HELP "Fornecedor"
+  ORDER 20
+
+ADD FIELD "dataPedido" OF "tbPedido" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Data Pedido"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Data Pedido"
+  ORDER 30
+
+ADD FIELD "statusPedido" OF "tbPedido" AS integer 
+  FORMAT "9"
+  INITIAL "0"
+  LABEL "Status Pedido"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Status Pedido"
+  ORDER 40
+
+ADD FIELD "narrativa" OF "tbPedido" AS character 
+  DESCRIPTION "Narrativa do Pedido"
+  FORMAT "x(200)"
+  INITIAL ""
+  LABEL "Narrativa"
+  POSITION 6
+  MAX-WIDTH 400
+  COLUMN-LABEL "Narrativa"
+  ORDER 50
+
+ADD INDEX "idxPK" ON "tbPedido" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "nrPedido" ASCENDING 
+
+ADD TABLE "tbProduto"
+  AREA "Schema Area"
+  DUMP-NAME "tbproduto"
+
+ADD FIELD "produto" OF "tbProduto" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Produto"
+  POSITION 2
+  MAX-WIDTH 32
+  COLUMN-LABEL "Produto"
+  ORDER 10
+
+ADD FIELD "descricao" OF "tbProduto" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Descri‡Æo"
+  POSITION 3
+  MAX-WIDTH 160
+  COLUMN-LABEL "Descri‡Æo"
+  ORDER 20
+
+ADD FIELD "dataValidade" OF "tbProduto" AS date 
+  DESCRIPTION "Data Validade"
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Data Validade"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Data Validade"
+  HELP "Data Validade"
+  ORDER 30
+
+ADD FIELD "ativo" OF "tbProduto" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Ativo"
+  POSITION 5
+  MAX-WIDTH 1
+  COLUMN-LABEL "Ativo"
+  ORDER 40
+
+ADD FIELD "geCodigo" OF "tbProduto" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Grup Estoque"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Grup Estoque"
+  HELP "Grup Estoque"
+  ORDER 50
+
+ADD INDEX "idxPk" ON "tbProduto" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "produto" ASCENDING 
+
+.
+PSC
+cpstream=ibm850
+.
+0000003536
