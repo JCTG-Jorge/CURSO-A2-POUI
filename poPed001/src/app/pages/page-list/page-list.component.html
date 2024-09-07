@@ -1,0 +1,41 @@
+<po-page-dynamic-table
+[p-fields]="fields"
+[p-actions]="actions"
+[p-table-custom-actions]="tableCustomActions"
+[p-service-api]="service.apiService()"
+
+>
+</po-page-dynamic-table>
+
+<po-modal #modalDetail p-title="Detalhes do Pedido">
+
+  <div class="po-row">
+    <po-info class="po-md-4" p-label="Pedido" [p-value]="nrPedido.toString()"> </po-info>
+    <po-info class="po-md-4" p-label="Fornecedor" [p-value]="fornecedor.toString()"> </po-info>
+  </div>
+  <po-divider >
+ </po-divider>
+
+  <div class="po-row">
+    <po-info class="po-md-2" p-label="Data do Pedido" [p-value]="data.toString()"> </po-info>
+    <po-radio-group
+    class="po-md-4"
+  name="situacao"
+  disabled="true"
+  [ngModel]="situacao"
+  p-label="Situação"
+  [p-options]="[
+    { label: 'Pendente', value: 1},
+    { label: 'Confirmado', value: 2 }
+  ]"
+>
+</po-radio-group>
+
+  </div>
+
+  <po-modal-footer>
+    <po-button p-label="Fechar" (p-click)="fechar()" p-kind="primary"> </po-button>
+  </po-modal-footer>
+
+
+</po-modal>

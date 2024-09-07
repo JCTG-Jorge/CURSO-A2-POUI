@@ -1,0 +1,61 @@
+<po-page-edit
+  p-title="Editar Pedido"
+  (p-cancel)="cancelar()"
+  (p-save)="salvar()"
+>
+  <form #formEditPeido="ngForm">
+    <div class="po-row">
+      <po-number
+        class="po-md-2"
+        name="nrPedido"
+        [(ngModel)]="nrPedido"
+        p-clean
+        p-label="Pedido"
+        p-required
+      >
+      </po-number>
+      <po-lookup
+        class="po-md-6"
+        name="codEmitente"
+        p-field-label="codEmitente"
+        p-field-value="codEmitente"
+        p-label="Fornecedor"
+        [p-columns]="columnsZoom"
+        [p-filter-service]="service.apiZoomFornecedor()"
+        [(ngModel)]="fornecedor"
+        [p-field-format]="fieldFormat"
+        p-placeholder="Selecione um fornecedor válido"
+      >
+      </po-lookup>
+    </div>
+    <div class="po-row">
+      <po-datepicker name="dataPedido" [(ngModel)]="data" p-label="Data Pedido">
+      </po-datepicker>
+      <po-radio-group
+        name="situacao"
+        p-label="Situação"
+        [(ngModel)]="situacao"
+        [p-options]="[
+          { label: 'Pendente', value: 1 },
+          { label: 'Confirmado', value: 2 }
+        ]"
+      >
+      </po-radio-group>
+    </div>
+    <div class="po-row">
+      <po-textarea
+       class="po-md-12"
+       name="narrativa"
+      [p-rows]="5"
+      [(ngModel)]="narrativa"
+      p-label="Narrativa"> </po-textarea>
+    </div>
+  </form>
+</po-page-edit>
+
+
+<div class="sample-container">
+  <po-loading-overlay
+   [hidden]="isLoding"
+  ></po-loading-overlay>
+</div>
