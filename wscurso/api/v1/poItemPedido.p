@@ -6,9 +6,8 @@ USING com.totvs.framework.api.JsonApiResponseBuilder.
 {utp/ut-api.i}
 {utp/ut-api-utils.i}
 
-{include/i-prgvrs.i poPedido 12.01.2301 } /*** "010001" ***/
+{include/i-prgvrs.i poItemPedido 12.01.2301 } /*** "010001" ***/
 
-{utp/ut-api-action.i piUltimoPedido      GET /lastPedido/~*}
 
 {utp/ut-api-action.i piGet      GET /~*/}
 {utp/ut-api-action.i piQuery    GET /~*}
@@ -32,7 +31,7 @@ PROCEDURE piGet:
  
     IF NOT VALID-HANDLE(apiHandler) THEN
     DO:
-       RUN wscurso/apipoPedido.p PERSISTENT SET apiHandler . 
+       RUN wscurso/apiPoItemPedido.p PERSISTENT SET apiHandler . 
     END.
     
    
@@ -69,53 +68,6 @@ PROCEDURE piGet:
 
 END PROCEDURE.
 
-PROCEDURE piUltimoPedido:
-     DEFINE INPUT  PARAM oInput  AS JsonObject NO-UNDO.
- DEFINE OUTPUT PARAM oOutput AS JsonObject NO-UNDO.
- 
-
- 
-    IF NOT VALID-HANDLE(apiHandler) THEN
-    DO:
-       RUN wscurso/apipoPedido.p PERSISTENT SET apiHandler . 
-    END.
-    
-   
-    RUN pi-lastPedido IN apiHandler (
-        INPUT oInput,
-        OUTPUT oOutput,
-        OUTPUT TABLE RowErrors
-    ).
-          
-    IF CAN-FIND(FIRST RowErrors WHERE UPPER(RowErrors.ErrorSubType) = 'ERROR':U) THEN DO:
-        ASSIGN oOutput = JsonApiResponseBuilder:asError(TEMP-TABLE RowErrors:HANDLE).
-    END.
-    ELSE
-    DO:
-         IF oOutput EQ ? THEN DO:
-            ASSIGN oOutput = JsonApiResponseBuilder:empty(404).
-         END.
-         ELSE DO:
-              ASSIGN oOutput = JsonApiResponseBuilder:ok(oOutput).
-         END.
-    
-    END.
-         
-    
-     //===Tratativa de erros progress
-   CATCH oE AS ERROR:
-        ASSIGN oOutput = JsonApiResponseBuilder:asError(oE).   
-   END CATCH.
-    
-   FINALLY:          
-        DELETE PROCEDURE apiHandler NO-ERROR.          
-   END FINALLY.       
-
-
-
-
-END PROCEDURE.
-
 
 PROCEDURE piQuery:
     DEFINE INPUT  PARAM oInput  AS JsonObject NO-UNDO.
@@ -126,7 +78,7 @@ PROCEDURE piQuery:
     
     IF NOT VALID-HANDLE(apiHandler) THEN
     DO:
-       RUN wscurso/apipoPedido.p PERSISTENT SET apiHandler. 
+       RUN wscurso/apiPoItemPedido.p PERSISTENT SET apiHandler. 
     END.
     
      RUN pi-query-v1 IN apiHandler  (
@@ -165,7 +117,7 @@ PROCEDURE piCreate:
     DEFINE VARIABLE aOutput     AS JsonArray  NO-UNDO.
     
      IF NOT VALID-HANDLE(apiHandler) THEN DO:
-        RUN wscurso/apipoPedido.p PERSISTENT SET apiHandler.
+        RUN wscurso/apiPoItemPedido.p PERSISTENT SET apiHandler.
      END.
      
        RUN pi-create-v1 IN apiHandler (
@@ -202,7 +154,7 @@ PROCEDURE piUpdate:
     DEFINE VARIABLE aOutput     AS JsonArray  NO-UNDO.
      
      IF NOT VALID-HANDLE(apiHandler) THEN DO:
-        RUN wscurso/apipoPedido.p PERSISTENT SET apiHandler.
+        RUN wscurso/apiPoItemPedido.p PERSISTENT SET apiHandler.
      END.
      
     RUN pi-update-v1 IN apiHandler (
@@ -237,7 +189,7 @@ PROCEDURE piDelete:
 
     
      IF NOT VALID-HANDLE(apiHandler) THEN DO:
-        RUN wscurso/apipoPedido.p PERSISTENT SET apiHandler.
+        RUN wscurso/apiPoItemPedido.p PERSISTENT SET apiHandler.
     END.
   
     RUN pi-delete-v1 IN apiHandler (

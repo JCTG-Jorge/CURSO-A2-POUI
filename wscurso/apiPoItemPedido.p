@@ -14,7 +14,9 @@ USING com.totvs.framework.api.*.
 
 {cdp/utils.i}
 
-  DEF TEMP-TABLE ttbPedido LIKE tbPedido.
+  DEF TEMP-TABLE ttTbItemPedido LIKE tbItemPedido
+  FIELD descricao LIKE ITEM.desc-item
+  FIELD id AS CHARACTER .
 
 
  FUNCTION fn-has-row-errors RETURNS LOGICAL ():
@@ -43,22 +45,27 @@ PROCEDURE pi-get-v1:
     
    
     ASSIGN cExcept = JsonAPIUtils:getTableExceptFieldsBySerializedFields(
-        TEMP-TABLE ttbPedido:HANDLE, oRequest:getFields()
+        TEMP-TABLE ttTbItemPedido:HANDLE, oRequest:getFields()
     ).
       
     
      ASSIGN tableKey = STRING(oRequest:getPathParams():GetCharacter(1)).       
      
         
-       FOR FIRST tbPedido WHERE tbPedido.nrPedido = INT(tableKey) NO-LOCK :
+       FOR FIRST tbItemPedido WHERE ROWID(tbItemPedido) = TO-ROWID(tableKey) NO-LOCK :
        
        
-           CREATE ttbPedido.
-             TEMP-TABLE ttbPedido:HANDLE:DEFAULT-BUFFER-HANDLE:BUFFER-COPY(
-              BUFFER tbPedido:HANDLE, cExcept).   
+       
+           CREATE ttTbItemPedido.
+             TEMP-TABLE ttTbItemPedido:HANDLE:DEFAULT-BUFFER-HANDLE:BUFFER-COPY(
+              BUFFER tbItemPedido:HANDLE, cExcept).   
+            
+            FIND ITEM WHERE ITEM.it-codigo = tbItemPedido.produto NO-LOCK NO-ERROR.
+           ASSIGN ttTbItemPedido.id  =  string(ROWID(tbItemPedido))
+           ttTbItemPedido.descricao = ITEM.desc-item  .
            
            ASSIGN oOutput = JsonAPIUtils:convertTempTableFirstItemToJsonObject(
-                TEMP-TABLE ttbPedido:HANDLE, (LENGTH(TRIM(cExcept)) > 0)
+                TEMP-TABLE ttTbItemPedido:HANDLE, (LENGTH(TRIM(cExcept)) > 0)
             ).      
        
        END. 
@@ -77,54 +84,8 @@ PROCEDURE pi-get-v1:
     END FINALLY.  
     
 
-END PROCEDURE. 
-
-PROCEDURE pi-lastPedido:
-    DEFINE INPUT  PARAM oInput  AS JsonObject NO-UNDO.
-    DEFINE OUTPUT PARAM oOutput AS JsonObject NO-UNDO.
-    DEFINE OUTPUT PARAM TABLE FOR RowErrors.
-    
-    DEFINE VARIABLE oRequest AS JsonAPIRequestParser NO-UNDO.
-    DEFINE VARIABLE cExcept  AS CHARACTER            NO-UNDO.
-    DEFINE VARIABLE tableKey AS character      NO-UNDO.
-
-    DEFINE VARIABLE pNumPed AS INTEGER     NO-UNDO.
-    
-    ASSIGN oRequest = NEW JsonAPIRequestParser(oInput).
-    
-   
-    ASSIGN cExcept = JsonAPIUtils:getTableExceptFieldsBySerializedFields(
-        TEMP-TABLE ttbPedido:HANDLE, oRequest:getFields()
-    ).
-      
-    
-     ASSIGN tableKey = STRING(oRequest:getPathParams():GetCharacter(1)).       
-     
-        
-       FOR LAST tbPedido NO-LOCK :       
-       
-           ASSIGN pNumPed = tbPedido.nrPedido.    
-       
-       END. 
-    
-    oOutput = NEW  JsonObject().
-    oOutput:ADD('lastPedido', pNumPed).
-       
-   
-   CATCH eSysError AS Progress.Lang.SysError:
-        CREATE RowErrors.
-        ASSIGN RowErrors.ErrorNumber = 17006
-               RowErrors.ErrorDescription = eSysError:getMessage(1)
-               RowErrors.ErrorSubType = "ERROR".
-    END.
-    FINALLY: 
-        IF fn-has-row-errors() THEN DO:
-            UNDO, RETURN 'NOK':U.
-        END.
-    END FINALLY.  
-    
-
 END PROCEDURE.
+
 
 PROCEDURE pi-query-v1:
     DEFINE INPUT  PARAM oInput   AS JsonObject NO-UNDO.
@@ -140,31 +101,36 @@ PROCEDURE pi-query-v1:
      DEFINE VARIABLE cExcept    AS CHARACTER             NO-UNDO.
      DEFINE VARIABLE cQuery     AS CHARACTER             NO-UNDO.    
      DEFINE VARIABLE cBy        AS CHARACTER             NO-UNDO.
-	
+     DEFINE VARIABLE pPedido AS INT   NO-UNDO.
      
     EMPTY TEMP-TABLE RowErrors.
-    EMPTY TEMP-TABLE ttbPedido.
+    EMPTY TEMP-TABLE ttTbItemPedido.
     
      ASSIGN oRequest = NEW JsonAPIRequestParser(oInput).
      
+          
      ASSIGN cExcept = JsonAPIUtils:getTableExceptFieldsBySerializedFields(
-        TEMP-TABLE ttbPedido:HANDLE, oRequest:getFields()
+        TEMP-TABLE ttTbItemPedido:HANDLE, oRequest:getFields()
     ).
     
-    ASSIGN cQuery = 'FOR EACH tbPedido  NO-LOCK':U.
+     IF oRequest:getQueryParams():has("nrPedido") THEN 
+        ASSIGN pPedido = INT(oRequest:getQueryParams():GetJsonArray("nrPedido"):GetCharacter(1)).
+        
+               
+    ASSIGN cQuery = 'FOR EACH tbItemPedido  NO-LOCK  where tbItemPedido.nrPedido = ' + STRING(pPedido).
                                                      
     
     IF oRequest:getQueryParams():has("search") THEN DO:
         ASSIGN quickSearch = STRING(oRequest:getQueryParams():GetJsonArray("search"):GetCharacter(1)).
-         ASSIGN cQuery = cQuery + " WHERE tbPedido.nome   MATCHES '*" + quickSearch + "*'". 
+         ASSIGN cQuery = cQuery + " and tbItemPedido.nome   MATCHES '*" + quickSearch + "*'". 
                                                                                                
     END.      
     ELSE
     DO:
         
          ASSIGN
-         cQuery = buildWhere(TEMP-TABLE ttbPedido:HANDLE, oRequest:getQueryParams(), "", cQuery) // FUNCTION buildWhere NA INCLUDE CDP/UTILS.I
-         cBy    = buildBy(TEMP-TABLE ttbPedido:HANDLE, oRequest:getOrder())                      // FUNCTION buildBy    NA INCLUDE CDP/UTILS.I
+         cQuery = buildWhere(TEMP-TABLE ttTbItemPedido:HANDLE, oRequest:getQueryParams(), "", cQuery) // FUNCTION buildWhere NA INCLUDE CDP/UTILS.I
+         cBy    = buildBy(TEMP-TABLE ttTbItemPedido:HANDLE, oRequest:getOrder())                      // FUNCTION buildBy    NA INCLUDE CDP/UTILS.I
          cQuery = cQuery + cBy.        
 
     END.
@@ -174,7 +140,7 @@ PROCEDURE pi-query-v1:
     
     
     
-    DEFINE QUERY findQuery FOR tbPedido  SCROLLING.
+    DEFINE QUERY findQuery FOR tbItemPedido  SCROLLING.
 
     QUERY findQuery:QUERY-PREPARE(cQuery).
     QUERY findQuery:QUERY-OPEN().
@@ -184,15 +150,21 @@ PROCEDURE pi-query-v1:
         GET NEXT findQuery.
         IF QUERY findQuery:QUERY-OFF-END THEN LEAVE.
     
+      /*  
         IF oRequest:getPageSize() EQ iCount THEN DO:
                 ASSIGN lHasNext = TRUE.
                 LEAVE.
         END.    
-        
-        CREATE ttbPedido.          
-        TEMP-TABLE ttbPedido:HANDLE:DEFAULT-BUFFER-HANDLE:BUFFER-COPY(
-            BUFFER tbPedido:HANDLE, cExcept
+                  */
+        CREATE ttTbItemPedido.          
+        TEMP-TABLE ttTbItemPedido:HANDLE:DEFAULT-BUFFER-HANDLE:BUFFER-COPY(
+            BUFFER tbItemPedido:HANDLE, cExcept
         ).
+        
+         
+            FIND ITEM WHERE ITEM.it-codigo = tbItemPedido.produto NO-LOCK NO-ERROR.
+           ASSIGN ttTbItemPedido.id  =  string(ROWID(tbItemPedido))
+           ttTbItemPedido.descricao = ITEM.desc-item  .
         
         ASSIGN iCount = iCount + 1.          
         
@@ -201,7 +173,7 @@ PROCEDURE pi-query-v1:
    
     
     ASSIGN aOutput = JsonAPIUtils:convertTempTableToJsonArray(
-        TEMP-TABLE ttbPedido:HANDLE, (LENGTH(TRIM(cExcept)) > 0) ).  
+        TEMP-TABLE ttTbItemPedido:HANDLE, (LENGTH(TRIM(cExcept)) > 0) ).  
         
    CATCH eSysError AS Progress.Lang.SysError:
         CREATE RowErrors.
@@ -274,7 +246,7 @@ PROCEDURE piAcao:
     DEFINE INPUT  PARAM cAction   AS CHAR NO-UNDO.
     DEFINE INPUT  PARAM oInput    AS JsonObject NO-UNDO.
     DEFINE OUTPUT PARAM aOutput   AS JsonArray  NO-UNDO.
-    DEF BUFFER btbPedido FOR tbPedido.
+    DEF BUFFER btbItemPedido FOR tbItemPedido.
    
     EMPTY TEMP-TABLE RowErrors.
     
@@ -291,40 +263,41 @@ PROCEDURE piAcao:
              ON QUIT  UNDO, LEAVE:
              
              
-             //tbPedido.nrPedido tbPedido.codFornecedor tbPedido.dataPedido tbPedido.statusPedido tbPedido.narrativa
+             // tbItemPedido.nrPedido tbItemPedido.produto tbItemPedido.quantidade tbItemPedido.preco tbItemPedido.vlrTotal
              
              
             
-           CREATE ttbPedido.
-           ASSIGN ttbPedido.nrPedido        =  oPayload:getInteger("nrPedido")  WHEN  oPayload:has("nrPedido")
-                  ttbPedido.codFornecedor   =  oPayload:getInteger("codFornecedor")  WHEN  oPayload:has("codFornecedor")                  
-                  ttbPedido.dataPedido      =  oPayload:getDate("dataPedido")  WHEN  oPayload:has("dataPedido")
-                  ttbPedido.narrativa       =  oPayload:getCharacter("narrativa")  WHEN  oPayload:has("narrativa")             
-                  ttbPedido.statusPedido    =  oPayload:getInteger("statusPedido")  WHEN  oPayload:has("statusPedido") .
+           CREATE ttTbItemPedido.
+           ASSIGN ttTbItemPedido.nrPedido    =  oPayload:getInteger("nrPedido")  WHEN  oPayload:has("nrPedido")
+                  ttTbItemPedido.produto     =  oPayload:getCharacter("produto")  WHEN  oPayload:has("produto")                  
+                  ttTbItemPedido.quantidade  =  oPayload:getDecimal("quantidade")  WHEN  oPayload:has("quantidade")
+                  ttTbItemPedido.preco       =  oPayload:getDecimal("preco")  WHEN  oPayload:has("preco")             
+                  ttTbItemPedido.vlrTotal    =  oPayload:getDecimal("vlrTotal")  WHEN  oPayload:has("vlrTotal") .
                   
          
           
-          FIND  tbPedido WHERE tbPedido.nrPedido  = ttbPedido.nrPedido EXCLUSIVE-LOCK NO-ERROR.
+          FIND  tbItemPedido WHERE tbItemPedido.nrPedido  = ttTbItemPedido.nrPedido
+                              AND  tbItemPedido.produto   = ttTbItemPedido.produto EXCLUSIVE-LOCK NO-ERROR.
           
           
           IF  cAction = 'create' THEN
           DO:
-               IF AVAIL tbPedido THEN
+               IF AVAIL tbItemPedido THEN
                DO:
                     CREATE RowErrors.
                     ASSIGN RowErrors.ErrorNumber = 17006
                            RowErrors.ErrorDescription = "Registro j ÿ existe com id informado!"
                            RowErrors.ErrorSubType = "ERROR".
                    
-               END.
+               END. 
                ELSE
                DO:
-                   CREATE tbPedido.
-                   ASSIGN tbPedido.nrPedido          = ttbPedido.nrPedido 
-                          tbPedido.codFornecedor     = ttbPedido.codFornecedor
-                          tbPedido.narrativa         = ttbPedido.narrativa  
-                          tbPedido.dataPedido        = ttbPedido.dataPedido                           
-                          tbPedido.statusPedido      = ttbPedido.statusPedido  .     
+                   CREATE tbItemPedido.
+                   ASSIGN tbItemPedido.nrPedido    = ttTbItemPedido.nrPedido 
+                          tbItemPedido.produto     = ttTbItemPedido.produto
+                          tbItemPedido.quantidade  = ttTbItemPedido.quantidade  
+                          tbItemPedido.preco       = ttTbItemPedido.preco                           
+                          tbItemPedido.vlrTotal    = ttTbItemPedido.vlrTotal  .     
                
                END.
                   
@@ -332,7 +305,7 @@ PROCEDURE piAcao:
           END.
           ELSE
           DO:
-              IF NOT AVAIL tbPedido THEN
+              IF NOT AVAIL tbItemPedido THEN
                DO:
                     CREATE RowErrors.
                     ASSIGN RowErrors.ErrorNumber = 17006
@@ -343,10 +316,9 @@ PROCEDURE piAcao:
                ELSE
                DO:              
                
-                   ASSIGN tbPedido.codFornecedor     = ttbPedido.codFornecedor
-                          tbPedido.narrativa         = ttbPedido.narrativa  
-                          tbPedido.dataPedido        = ttbPedido.dataPedido                           
-                          tbPedido.statusPedido      = ttbPedido.statusPedido  .
+                   ASSIGN tbItemPedido.quantidade  = ttTbItemPedido.quantidade  
+                          tbItemPedido.preco       = ttTbItemPedido.preco                           
+                          tbItemPedido.vlrTotal    = ttTbItemPedido.vlrTotal  . 
               END.          
             
           END.  
@@ -370,7 +342,7 @@ PROCEDURE piAcao:
     
     oOutput = NEW JsonObject().
     ASSIGN oOutput = JsonAPIUtils:convertTempTableFirstItemToJsonObject(
-           TEMP-TABLE ttbPedido:HANDLE ).
+           TEMP-TABLE ttTbItemPedido:HANDLE ).
 
     aOutput = NEW JsonArray().
     aOutput:ADD(oOutput).
@@ -399,18 +371,18 @@ PROCEDURE pi-delete-v1:
 
     DEFINE VARIABLE oRequest AS JsonAPIRequestParser NO-UNDO.
     DEFINE VARIABLE cExcept  AS CHARACTER            NO-UNDO.
-    DEFINE VARIABLE vId      AS INTEGER            NO-UNDO.
+    DEFINE VARIABLE vId      AS CHARACTER            NO-UNDO.
 
     ASSIGN oRequest = NEW JsonAPIRequestParser(oInput).
 
-    ASSIGN vId = INT(oRequest:getPathParams():GetCharacter(1)).
+    ASSIGN vId = oRequest:getPathParams():GetCharacter(1).
             
     
     
-    FIND tbPedido WHERE tbPedido.nrPedido =  vId EXCLUSIVE-LOCK NO-ERROR.
-    IF AVAIL tbPedido THEN
+    FIND tbItemPedido WHERE ROWID(tbItemPedido) =  TO-ROWID(vId) EXCLUSIVE-LOCK NO-ERROR.
+    IF AVAIL tbItemPedido THEN
     DO:
-        DELETE tbPedido.        
+        DELETE tbItemPedido.        
     END.
     ELSE
     DO:
