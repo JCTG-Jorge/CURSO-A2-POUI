@@ -11,7 +11,7 @@
         [(ngModel)]="nrPedido"
         p-clean
         p-label="Pedido"
-        p-required
+        p-required="true"
       >
       </po-number>
       <po-lookup
@@ -25,6 +25,8 @@
         [(ngModel)]="fornecedor"
         [p-field-format]="fieldFormat"
         p-placeholder="Selecione um fornecedor válido"
+        [p-required]="true"
+        [p-show-required]="true"
       >
       </po-lookup>
     </div>

@@ -1,11 +1,22 @@
 <po-page-dynamic-table
+#dynamicTable
+p-actions-right="false"
 [p-fields]="fields"
 [p-actions]="actions"
 [p-table-custom-actions]="tableCustomActions"
+[p-page-custom-actions]="actionsPage"
 [p-service-api]="service.apiService()"
 
 >
 </po-page-dynamic-table>
+
+<div class="sample-container">
+  <po-loading-overlay
+    [hidden]="isLoading"
+  ></po-loading-overlay>
+</div>
+
+
 
 <po-modal #modalDetail p-title="Detalhes do Pedido">
 
@@ -38,4 +49,22 @@
   </po-modal-footer>
 
 
+</po-modal>
+
+<po-modal
+    #modalNovo
+    p-title="Novo Pedido"
+    p-size="lg" >
+
+    <po-dynamic-form
+    #formNovo
+
+    [p-fields]="fields_new"
+    [p-value]="pedido"
+    > </po-dynamic-form>
+
+    <po-modal-footer>
+      <po-button p-label="Cancelar" (p-click)="fecharNovo()"  [p-danger]="true"> </po-button>
+      <po-button p-label="Salvar" (p-click)="salvar()" p-kind="primary" [p-disabled]="!formNovo.form.valid"> </po-button>
+    </po-modal-footer>
 </po-modal>

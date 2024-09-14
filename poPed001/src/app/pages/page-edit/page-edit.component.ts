@@ -80,7 +80,14 @@ export class PageEditComponent implements OnInit{
   }
   salvar(){
 
-    let payload = {
+    console.log(this.formEditPedido.valid)
+    if (!this.formEditPedido.valid){
+      this.poNotification.error('Existem campos obrigatórios!')
+      return
+
+    }
+
+    let payload  = {
       nrPedido: this.nrPedido,
       codFornecedor: this.fornecedor,
       dataPedido: this.data,
@@ -91,9 +98,11 @@ export class PageEditComponent implements OnInit{
     this.isLoding = false
     this.service.alterarPedido(payload).subscribe({
       next: dados => {
-        console.log(dados)
+
         this.isLoding = true
         this.poNotification.success('Registro alterado com sucesso!')
+        this.cancelar()
+
       }
       , error : err => {
         this.isLoding = true

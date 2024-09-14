@@ -1,0 +1,57 @@
+<po-page-default p-title="Itens do Pedido"
+  [p-breadcrumb]="breadcrumb"
+  [p-actions]="actionsPage">
+
+
+  <po-table
+
+  [p-height]="400"
+  [p-hide-batch-actions]="false"
+  [p-hide-table-search]="false"
+  [p-hide-columns-manager]="true"
+  [p-draggable]="true"
+  p-container="shadow"
+  [p-sort]="true"
+
+
+  [p-columns]="columns"
+  [p-items]="items"
+
+  >
+</po-table>
+</po-page-default>
+
+<po-modal
+    #modalNovo
+    p-title="Adicionar Item ao Pedido" >
+
+    <form [formGroup]="formPedidoItem">
+      <div class="po-row">
+        <po-number
+          class="po-md-4"
+          formControlName="nrPedido"
+          p-label="Pedido"
+          p-disabled="true"
+        ></po-number>
+      </div>
+
+
+      <div class="po-row">
+        <po-decimal
+          class="po-md-6"
+          formControlName="preco"
+          p-label="Preço"
+          p-required="true"
+          [p-show-required]="true"
+        ></po-decimal>
+        <po-decimal
+          class="po-md-6"
+          formControlName="vlrTotal"
+          p-label="Valor Total"
+          p-required="true"
+          [p-show-required]="true"
+        ></po-decimal>
+      </div>
+
+    </form>
+</po-modal>
