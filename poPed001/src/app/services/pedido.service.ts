@@ -33,6 +33,10 @@ export class PedidoService {
 
     return this.API +  'cie/v1/zoomFornecedor'
   }
+  apiZoomProduto(){
+
+    return this.API +  'cie/v1/buscaItem'
+  }
 
   alterarPedido(payload: Pedido){
     let url = this.API +  `wscurso/v1/poPedido`
@@ -44,6 +48,25 @@ export class PedidoService {
   adicionarPedido(payload: Pedido){
     let url = this.API +  `wscurso/v1/poPedido`
     return this.http.post<any>(url, payload )
+
+
+  }
+  adicionarItemPedido(payload: any){
+    let url = this.API +  `wscurso/v1/poItemPedido`
+    return this.http.post<any>(url, payload )
+
+
+  }
+  updateItemPedido(payload: any){
+    let url = this.API +  `wscurso/v1/poItemPedido`
+    return this.http.put<any>(url, payload )
+
+
+  }
+
+  deleteItemPedido(id: string){
+    let url = this.API +  `wscurso/v1/poItemPedido/${id}`
+    return this.http.delete<any>(url )
 
 
   }

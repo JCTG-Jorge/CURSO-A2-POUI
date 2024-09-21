@@ -1,57 +1,136 @@
-<po-page-default p-title="Itens do Pedido"
+<po-page-default
+  p-title="Itens do Pedido"
   [p-breadcrumb]="breadcrumb"
-  [p-actions]="actionsPage">
-
-
+  [p-actions]="actionsPage"
+>
   <po-table
 
-  [p-height]="400"
-  [p-hide-batch-actions]="false"
-  [p-hide-table-search]="false"
-  [p-hide-columns-manager]="true"
-  [p-draggable]="true"
-  p-container="shadow"
-  [p-sort]="true"
-
-
-  [p-columns]="columns"
-  [p-items]="items"
-
+    [p-height]="400"
+    [p-hide-batch-actions]="false"
+    [p-hide-table-search]="false"
+    [p-actions]="actions"
+    [p-columns]="columns"
+    [p-items]="items"
+    [p-hide-columns-manager]="true"
+    [p-draggable]="true"
+    p-container="shadow"
+    [p-sort]="true"
   >
-</po-table>
+  </po-table>
 </po-page-default>
 
-<po-modal
-    #modalNovo
-    p-title="Adicionar Item ao Pedido" >
+<po-modal #modalNovo p-title="Adicionar Item ao Pedido">
+  <form [formGroup]="formPedidoItem">
+    <div class="po-row">
+      <po-number
+        class="po-md-4"
+        formControlName="nrPedido"
+        p-label="Pedido"
+        p-disabled="true"
+      ></po-number>
+    </div>
 
-    <form [formGroup]="formPedidoItem">
-      <div class="po-row">
-        <po-number
-          class="po-md-4"
-          formControlName="nrPedido"
-          p-label="Pedido"
-          p-disabled="true"
-        ></po-number>
-      </div>
+    <po-lookup
+      class="po-md-12"
+      name="produto"
+      formControlName="produto"
+      p-field-label="label"
+      p-field-value="itCodigo"
+      p-help="Selecione o Produto"
+      p-label="Produto"
+      [p-columns]="columnsZoom"
+      [p-field-format]="fieldFormat"
+      [p-filter-service]="service.apiZoomProduto()"
+      [p-hide-columns-manager]="true"
+    >
+    </po-lookup>
 
+    <div class="po-row">
+      <po-decimal
+        class="po-md-6"
+        formControlName="preco"
+        p-label="Preço"
+        p-required="true"
+        [p-show-required]="true"
+      ></po-decimal>
+      <po-decimal
+        class="po-md-6"
+        formControlName="vlrTotal"
+        p-label="Valor Total"
+        p-required="true"
+        [p-show-required]="true"
+      ></po-decimal>
+    </div>
+  </form>
 
-      <div class="po-row">
-        <po-decimal
-          class="po-md-6"
-          formControlName="preco"
-          p-label="Preço"
-          p-required="true"
-          [p-show-required]="true"
-        ></po-decimal>
-        <po-decimal
-          class="po-md-6"
-          formControlName="vlrTotal"
-          p-label="Valor Total"
-          p-required="true"
-          [p-show-required]="true"
-        ></po-decimal>
-      </div>
-
-    </form>
+  <po-modal-footer>
+    <po-button p-label="Cancelar" (p-click)="cancelar()" p-danger="true">
+    </po-button>
+    <po-button p-label="Confirma" p-kind="primary" (p-click)="confirma()">
+    </po-button>
+  </po-modal-footer>
 </po-modal>
+<po-modal #modalEdit p-title="Editar Item do Pedido" p-size="lg">
+
+  <form [formGroup]="formPedidoItem">
+    <div class="po-row">
+            <po-number
+        class="po-md-4"
+        formControlName="nrPedido"
+        p-label="Pedido"
+        p-disabled="true"
+      ></po-number>
+    </div>
+    <div class="po-row">
+      <po-lookup
+      class="po-md-12"
+      name="produto"
+      formControlName="produto"
+      p-field-label="label"
+      p-field-value="itCodigo"
+      p-help="Selecione o Produto"
+      p-label="Produto"
+      [p-disabled]="true"
+      [p-columns]="columnsZoom"
+      [p-field-format]="fieldFormat"
+      [p-filter-service]="service.apiZoomProduto()"
+      [p-hide-columns-manager]="true"
+    >
+    </po-lookup>
+    </div>
+
+    <div class="po-row">
+      <po-decimal
+        class="po-md-6"
+        formControlName="preco"
+        p-label="Preço"
+        p-required="true"
+        [p-show-required]="true"
+      ></po-decimal>
+      <po-decimal
+        class="po-md-6"
+        formControlName="vlrTotal"
+        p-label="Valor Total"
+        p-required="true"
+        [p-show-required]="true"
+      ></po-decimal>
+    </div>
+
+  </form>
+  <po-modal-footer>
+    <po-button p-label="Cancelar" (p-click)="cancelarEdit()" p-danger="true">
+    </po-button>
+    <po-button p-label="Salvar" p-kind="primary" (p-click)="confirmaEdit()" >
+    </po-button>
+  </po-modal-footer>
+</po-modal>
+
+<po-modal
+    #modalDetail
+    p-title="Detalhes dos Itens do Pedido" >
+    <po-dynamic-view [p-fields]="fieldsProduto" [p-value]="produto"> </po-dynamic-view>
+
+
+</po-modal>
+
+<po-loading-overlay [hidden]="isLoading"> </po-loading-overlay>

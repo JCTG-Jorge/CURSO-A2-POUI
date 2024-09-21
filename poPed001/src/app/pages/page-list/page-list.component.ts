@@ -47,8 +47,9 @@ export class PageListComponent implements OnInit {
 
 
 
-
   ];
+
+
 
   readonly actions: PoPageDynamicTableActions = {
     remove: true,
