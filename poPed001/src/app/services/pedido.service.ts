@@ -31,11 +31,11 @@ export class PedidoService {
   }
   apiZoomFornecedor(){
 
-    return this.API +  'cie/v1/zoomFornecedor'
+    return this.API +  'wscurso/v1/zoomFornecedor'
   }
   apiZoomProduto(){
 
-    return this.API +  'cie/v1/buscaItem'
+    return this.API +  'wscurso/v1/buscaItem'
   }
 
   alterarPedido(payload: Pedido){

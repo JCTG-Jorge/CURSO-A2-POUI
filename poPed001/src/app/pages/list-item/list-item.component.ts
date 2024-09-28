@@ -5,6 +5,7 @@ import {
   PoBreadcrumb,
   PoButtonModule,
   PoContainerModule,
+  PoDynamicFormField,
   PoDynamicModule,
   PoDynamicViewField,
   PoFieldModule,
@@ -67,7 +68,8 @@ export class ListItemComponent implements OnInit {
 
   public readonly columnsZoom: Array<PoLookupColumn> = [
     { property: 'itCodigo', label: 'Item' },
-    { property: 'descricao', label: 'Descrição' }
+    { property: 'descricao', label: 'Descrição' },
+    { property: 'GE', label: 'Grup Estoq' }
   ];
 
 
@@ -110,9 +112,18 @@ export class ListItemComponent implements OnInit {
 
   ]
 
+  advancedFilters: Array<PoDynamicFormField> = [
+    { property: 'itCodigo', optional: true, gridColumns: 6, label: 'Produto' },
+    { property: 'descricao', label: 'Descrição' , optional: true, gridColumns: 6 },
+    { property: 'GE', label: 'Grupo Estoq' , optional: true, gridColumns: 6 }
+  ];
+
+
 
   formPedidoItem!: FormGroup
   isLoading: boolean = true
+
+
   constructor(
     public service: PedidoService,
     private activateRoute: ActivatedRoute,

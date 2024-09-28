@@ -42,6 +42,7 @@ export class PageListComponent implements OnInit {
     },
     { property: 'nrPedido',label: 'Nr Pedido', key: true,  filter: true,  },
     { property: 'codFornecedor', label: 'Fornecedor', filter: true, gridColumns: 6 },
+    { property: 'nome', label: 'Nome', filter: false, gridColumns: 6 },
     { property: 'dataPedido', label: 'Data Pedido', type: 'date', filter: true, gridColumns: 6,  sortable: false },
     { property: 'narrativa', label: 'Narrativa', filter: false, gridColumns: 6 },
 
@@ -58,11 +59,17 @@ export class PageListComponent implements OnInit {
 
   actionsPage: Array<PoPageDynamicTableCustomAction> = [
 
+
     { label: 'Novo', action: this.novoPedido.bind(this) }
 
   ]
 
   tableCustomActions: Array<PoPageDynamicTableCustomTableAction> = [
+    {
+      label: 'Duplicar',
+      action: this.duplicar.bind(this),
+      icon: 'ph ph-notepad'
+    },
     {
       label: 'Details',
       action: this.detalhe.bind(this),
@@ -129,6 +136,19 @@ export class PageListComponent implements OnInit {
 
     this.poModalDetail.close()
   }
+  duplicar(pedidoLinha: Pedido){
+
+    this.isLoading = true
+    this.pedido = {
+     nrPedido: pedidoLinha.nrPedido,
+     codFornecedor: pedidoLinha.codFornecedor,
+     dataPedido: pedidoLinha.dataPedido,
+     statusPedido: pedidoLinha.statusPedido,
+     narrativa: pedidoLinha.narrativa
+
+  }
+  this.poModalNovo.open()
+}
 
 
   novoPedido(){
@@ -154,6 +174,8 @@ export class PageListComponent implements OnInit {
 
     this.poModalNovo.open()
   }
+
+
   fecharNovo(){
     this.poModalNovo.close()
   }
