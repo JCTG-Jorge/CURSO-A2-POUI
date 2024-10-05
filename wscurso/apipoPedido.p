@@ -14,7 +14,8 @@ USING com.totvs.framework.api.*.
 
 {cdp/utils.i}
 
-  DEF TEMP-TABLE ttbPedido LIKE tbPedido.
+  DEF TEMP-TABLE ttbPedido LIKE tbPedido
+  FIELD nome LIKE emitente.nome-emit.
 
 
  FUNCTION fn-has-row-errors RETURNS LOGICAL ():
@@ -55,7 +56,15 @@ PROCEDURE pi-get-v1:
        
            CREATE ttbPedido.
              TEMP-TABLE ttbPedido:HANDLE:DEFAULT-BUFFER-HANDLE:BUFFER-COPY(
-              BUFFER tbPedido:HANDLE, cExcept).   
+              BUFFER tbPedido:HANDLE, cExcept).  
+              
+              FIND emitente WHERE emitente.cod-emitente = tbPedido.codFornecedor NO-LOCK NO-ERROR.
+              IF AVAIL emitente THEN
+              DO:
+                    ttbPedido.nome = emitente.nome-emit. 
+              END.
+              
+
            
            ASSIGN oOutput = JsonAPIUtils:convertTempTableFirstItemToJsonObject(
                 TEMP-TABLE ttbPedido:HANDLE, (LENGTH(TRIM(cExcept)) > 0)
@@ -141,6 +150,7 @@ PROCEDURE pi-query-v1:
      DEFINE VARIABLE cQuery     AS CHARACTER             NO-UNDO.    
      DEFINE VARIABLE cBy        AS CHARACTER             NO-UNDO.
 	
+   
      
     EMPTY TEMP-TABLE RowErrors.
     EMPTY TEMP-TABLE ttbPedido.
@@ -156,7 +166,7 @@ PROCEDURE pi-query-v1:
     
     IF oRequest:getQueryParams():has("search") THEN DO:
         ASSIGN quickSearch = STRING(oRequest:getQueryParams():GetJsonArray("search"):GetCharacter(1)).
-         ASSIGN cQuery = cQuery + " WHERE tbPedido.nome   MATCHES '*" + quickSearch + "*'". 
+         ASSIGN cQuery = cQuery + " WHERE tbPedido.codFornecedor   = " + quickSearch . 
                                                                                                
     END.      
     ELSE
@@ -165,7 +175,10 @@ PROCEDURE pi-query-v1:
          ASSIGN
          cQuery = buildWhere(TEMP-TABLE ttbPedido:HANDLE, oRequest:getQueryParams(), "", cQuery) // FUNCTION buildWhere NA INCLUDE CDP/UTILS.I
          cBy    = buildBy(TEMP-TABLE ttbPedido:HANDLE, oRequest:getOrder())                      // FUNCTION buildBy    NA INCLUDE CDP/UTILS.I
-         cQuery = cQuery + cBy.        
+         cQuery = cQuery + cBy.   
+         
+         
+       
 
     END.
           
@@ -194,6 +207,13 @@ PROCEDURE pi-query-v1:
             BUFFER tbPedido:HANDLE, cExcept
         ).
         
+        
+         FIND emitente WHERE emitente.cod-emitente = tbPedido.codFornecedor NO-LOCK NO-ERROR.
+         IF AVAIL emitente THEN             
+                ttbPedido.nome = emitente.nome-emit. 
+       
+              
+              
         ASSIGN iCount = iCount + 1.          
         
     

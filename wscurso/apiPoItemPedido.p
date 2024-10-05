@@ -272,9 +272,9 @@ PROCEDURE piAcao:
                   ttTbItemPedido.produto     =  oPayload:getCharacter("produto")  WHEN  oPayload:has("produto")                  
                   ttTbItemPedido.quantidade  =  oPayload:getDecimal("quantidade")  WHEN  oPayload:has("quantidade")
                   ttTbItemPedido.preco       =  oPayload:getDecimal("preco")  WHEN  oPayload:has("preco")             
-                  ttTbItemPedido.vlrTotal    =  oPayload:getDecimal("vlrTotal")  WHEN  oPayload:has("vlrTotal") .
+                  ttTbItemPedido.vlrTotal    =  oPayload:getDecimal("vlrTotal")  WHEN  oPayload:has("vlrTotal").
                   
-         
+                          
           
           FIND  tbItemPedido WHERE tbItemPedido.nrPedido  = ttTbItemPedido.nrPedido
                               AND  tbItemPedido.produto   = ttTbItemPedido.produto EXCLUSIVE-LOCK NO-ERROR.
@@ -329,13 +329,14 @@ PROCEDURE piAcao:
             UNDO, RETURN 'NOK':U.
         END.
         
+        
         CATCH eSysError AS PROGRESS.Lang.SysError:
             CREATE RowErrors.
             ASSIGN RowErrors.ErrorNumber = 17006
                    RowErrors.ErrorDescription = eSysError:getMessage(1)
                    RowErrors.ErrorSubType = "ERROR".
         END.
-             
+              
              
     END.
     
