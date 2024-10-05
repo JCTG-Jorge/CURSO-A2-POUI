@@ -1,0 +1,36 @@
+<div class="po-wrapper">
+  <po-toolbar p-title="Meu Projeto"></po-toolbar>
+
+  <po-menu [p-menus]="menus"
+  [p-collapsed]="true"
+  [p-filter]="true"
+  p-logo="LogoCie.png"
+  p-short-logo="CIELogo.png"
+  ></po-menu>
+
+   <router-outlet></router-outlet>
+
+</div>
+
+
+
+<!--
+  @if(menuItemSelected === 'Home'){
+    <po-page-default p-title="Home" >
+       {{menuItemSelected}}
+    </po-page-default>
+  } @else {
+    <app-relatorio></app-relatorio>
+  }
+
+
+  @switch (menuItemSelected) {
+    @case ('Home') {
+      <po-page-default p-title="Home" >
+
+     </po-page-default>
+    }
+    @case ("Relatório") {
+      <app-relatorio></app-relatorio>
+    }
+  }-->

@@ -1,0 +1,9 @@
+po-menu{
+  --background-color:#2c3739;
+  --color-menu-background-color-menu: #2c3739;
+}
+
+po-menu, .po-menu-item{
+  --color-action-default: #b4e2fd;
+  --color-menu-color-menu-item-text: #b4e2fd;
+}

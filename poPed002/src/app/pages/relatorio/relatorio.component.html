@@ -1,0 +1,103 @@
+<po-page-default p-title="Relatorio">
+  <po-tabs>
+    <po-tab p-label="Seleção" [p-active]="true">
+      <po-container class="po-p-2">
+        <div class="po-row">
+          <po-input
+            class="po-md-6"
+            name="estabIni"
+            [(ngModel)]="estabIni"
+            p-label="Estabelecimento Inicial"
+            p-clean="true"
+            [p-maxlength]="5"
+            p-focus="true"
+          >
+          </po-input>
+          <po-input
+            class="po-md-6"
+            name="estabFim"
+            [(ngModel)]="estabFim"
+            p-label="Estabelecimento Final"
+            p-clean="true"
+            [p-maxlength]="5"
+            p-focus="true"
+          >
+          </po-input>
+        </div>
+        <div class="po-row">
+          <po-datepicker
+            class="po-md-6"
+            name="dtTransIni"
+            [(ngModel)]="dtTransIni"
+            p-clean
+            p-format="dd/mm/yyyy"
+            p-label="Data Inicial"
+            p-required
+            [p-max-date]="dtTransFim"
+          >
+          </po-datepicker>
+
+          <po-datepicker
+            class="po-md-6"
+            name="dtTransFim"
+            [(ngModel)]="dtTransFim"
+            p-clean
+            p-format="dd/mm/yyyy"
+            p-label="Data Final"
+            p-required
+            [p-min-date]="dtTransIni"
+          >
+          </po-datepicker>
+        </div>
+        <div class="po-row">
+          <po-input
+            class="po-md-6"
+            name="itCodigoIni"
+            [(ngModel)]="itCodigoIni"
+            p-label="Item Inicial"
+            p-clean="true"
+            [p-maxlength]="16"
+            p-focus="true"
+          >
+          </po-input>
+          <po-input
+            class="po-md-6"
+            name="itCodigoFim"
+            [(ngModel)]="itCodigoFim"
+            p-label="Item Final"
+            p-clean="true"
+            [p-maxlength]="16"
+            p-focus="true"
+          >
+          </po-input>
+        </div>
+      </po-container>
+    </po-tab>
+    <po-tab p-label="Impressão">
+      <po-container class="po-p-2">
+        <po-radio-group
+          name="execucao"
+          p-label="Execução"
+          [(ngModel)]="execucao"
+          [p-disabled]="true"
+          [p-options]="[
+            { label: 'On-Line', value: 1 },
+            { label: 'Batch', value: 3 }
+          ]"
+        >
+        </po-radio-group>
+      </po-container>
+    </po-tab>
+  </po-tabs>
+  <po-container>
+    <po-button
+        p-label="Executar"
+        p-kind="primary"
+        (p-click)="executar()">
+    </po-button>
+  </po-container>
+</po-page-default>
+
+<po-loading-overlay
+   [hidden]="isLoading">
+</po-loading-overlay>
